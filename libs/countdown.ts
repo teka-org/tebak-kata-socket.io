@@ -20,3 +20,11 @@ export function startCountdown(io: Server, waitingRoom: string) {
 
 // Exporting default to satisfy TypeScript's module system
 export default startCountdown;
+
+export function stopCountdown() {
+  clearInterval(countdownInterval);
+}
+
+export function getSecondsLeft(no: number): void {
+  seconds = no;
+}

@@ -2,7 +2,11 @@
 
 import { Server } from "socket.io";
 import { updateRoom } from "../libs/roomUpdater";
-import { startCountdown } from "../libs/countdown";
+import {
+  getSecondsLeft,
+  startCountdown,
+  stopCountdown,
+} from "../libs/countdown";
 
 // Define constants
 const waitingRoom = "waitingRoom";
@@ -10,7 +14,6 @@ const gameRoom = "gameRoom";
 let seconds = 30;
 const usersInWaitingRoom: any[] = [];
 const usersInGameRoom: any[] = [];
-let countdownInterval: any;
 
 // Define function to handle waiting room logic
 export function handleWaitingRoom(socket: any, io: Server) {
@@ -43,7 +46,9 @@ export function handleWaitingRoom(socket: any, io: Server) {
 
     if (usersInWaitingRoom.length === 0) {
       seconds = 30;
-      clearInterval(countdownInterval);
+      // clearInterval(countdownInterval);
+      stopCountdown();
+      getSecondsLeft(30);
       usersInWaitingRoom.length = 0;
       console.log("Room", waitingRoom, "terminated.");
     }
