@@ -1,5 +1,3 @@
-// const waitingRoom = "waitingRoom"
-
 import { Server } from "socket.io";
 import { updateRoom } from "../libs/roomUpdater";
 import {
@@ -10,65 +8,98 @@ import {
 
 // Define constants
 const waitingRoom = "waitingRoom";
-const gameRoom = "gameRoom";
-let seconds = 30;
-const usersInWaitingRoom: any[] = [];
-const usersInGameRoom: any[] = [];
+// const gameRoom = "gameRoom";
+let usersInWaitingRoom: any[] = [];
+export let usersInGameRoom: any[] = [];
 
 // Define function to handle waiting room logic
 export function handleWaitingRoom(socket: any, io: Server) {
+  let playerId: any;
   // Join waiting room
   socket.join(waitingRoom);
+  console.log("A user connected");
 
-  // Add user to waiting room
-  const player = {
-    id: socket.id,
-  };
+  // Listen for the "dataPlayer" event
+  socket.on("dataPlayer", (id: any) => {
+    playerId = id;
+    // Call function to add user to waiting room
+    addUserToWaitingRoom();
+  });
 
-  usersInWaitingRoom.push(player);
-  updateRoom(io, waitingRoom, usersInWaitingRoom);
+  // Function to add user to waiting room
+  function addUserToWaitingRoom() {
+    // Create player object with playerId and socket id
+    const player = {
+      playerId: playerId,
+      id: socket.id,
+    };
 
-  // Start countdown if necessary and end it if timeout
-  if (usersInWaitingRoom.length >= 1 && seconds === 30) {
-    startCountdown(io, waitingRoom);
-    console.log("Start counting");
-  }
-
-  // Handle disconnection
-  socket.on("disconnect", () => {
-    const indexLeft = usersInWaitingRoom.findIndex(
-      (user) => user.id === socket.id
-    );
-    if (indexLeft !== -1) {
-      usersInWaitingRoom.splice(indexLeft, 1);
-    }
+    // Add user to waiting room
+    usersInWaitingRoom.push(player);
+    // Update room
     updateRoom(io, waitingRoom, usersInWaitingRoom);
 
-    if (usersInWaitingRoom.length === 0) {
-      seconds = 30;
-      // clearInterval(countdownInterval);
-      stopCountdown();
-      getSecondsLeft(30);
-      usersInWaitingRoom.length = 0;
-      console.log("Room", waitingRoom, "terminated.");
+    // Start countdown if necessary and end it if timeout
+    if (usersInWaitingRoom.length === 1) {
+      startCountdown(io, waitingRoom);
+      console.log("Start counting");
     }
 
     // Move users to game room when there are five users
     if (usersInWaitingRoom.length === 5) {
+      console.log("you can start the game");
       io.to(waitingRoom).emit("moveTogameRoom");
 
       usersInWaitingRoom.forEach((user) => {
         const socket = io.sockets.sockets.get(user.id);
         if (socket) {
           // Leave the waiting room
-          usersInGameRoom.push(player);
+          // const player = {
+          //   playerId: user.playerId,
+          //   id: user.id,
+          // };
+
           socket.leave(waitingRoom);
-          // Join the game room
-          socket.join(gameRoom);
+          // Add user to game room
+          // usersInGameRoom.push(player);
+          // updateRoom(io, gameRoom, usersInGameRoom);
+          // // Join the game room
+          // socket.join(gameRoom);
         }
       });
-      usersInWaitingRoom.length = 0;
+      usersInWaitingRoom = [];
     }
+  }
+
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+
+    const indexLeft = usersInWaitingRoom.findIndex(
+      (user) => user.id === socket.id
+    );
+
+    if (indexLeft !== -1) {
+      usersInWaitingRoom.splice(indexLeft, 1);
+      updateRoom(io, waitingRoom, usersInWaitingRoom);
+    }
+
+    if (usersInWaitingRoom.length === 0) {
+      getSecondsLeft(30);
+      stopCountdown();
+      console.log("Room", waitingRoom, "terminated.");
+    }
+
+    // Handle disconnection for users in the game room
+    // const indexLeftGame = usersInGameRoom.findIndex(
+    //   (user) => user.id === socket.id
+    // );
+
+    // if (indexLeftGame !== -1) {
+    //   console.log(`${indexLeft} left game room`);
+    //   usersInGameRoom.splice(indexLeftGame, 1);
+    //   updateRoom(io, gameRoom, usersInGameRoom);
+    // }
   });
 }
 

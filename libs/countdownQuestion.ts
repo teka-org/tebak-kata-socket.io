@@ -2,20 +2,29 @@
 
 import { Server } from "socket.io";
 
-let seconds: number = 30;
+let seconds: number = 15;
 let countdownInterval: NodeJS.Timeout;
 
-export function startCountdown(io: Server, waitingRoom: string) {
+export function countdownQuestions(io: Server, gameRoom: string) {
   countdownInterval = setInterval(() => {
-    io.to(waitingRoom).emit("countdown", seconds);
+    io.to(gameRoom).emit("countdownQuestions", seconds);
     seconds--;
-    if (seconds === 0) {
+    if (seconds === -1) {
       clearInterval(countdownInterval);
-      console.log("Countdown finished.");
+      console.log("Time Out.");
+      // io.to(waitingRoom).emit("timeout", "Time Out");
       // Handle countdown finished event
     }
   }, 1000);
 }
 
 // Exporting default to satisfy TypeScript's module system
-export default startCountdown;
+export default countdownQuestions;
+
+export function stopCountdown() {
+  clearInterval(countdownInterval);
+}
+
+export function getSecondsLeft(no: number): void {
+  seconds = no;
+}

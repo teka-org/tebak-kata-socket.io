@@ -74,15 +74,14 @@
     <script>
       var socket = io();
 
+      const rand = Math.random().toString(16).substr(2, 8);
+      console.log(rand);
+      socket.emit('dataPlayer', rand)
+
     socket.on('usersCount', (count)=>{
       document.getElementById('usersCount').textContent = `Users in waiting room: ${count}`
-
-      console.log(count);
     })
 
-    socket.on('hello', (e)=>{
-      console.log(e);
-    })
     socket.on('usersInRoom', (players)=>{
       console.log(players)
 
@@ -92,7 +91,7 @@
 
       players.forEach(player => {
         const listItem = document.createElement('li');
-        listItem.innerText = `Name: ${player.name}, id: ${player.id}`
+        listItem.innerText = `playerId: ${player.playerId}, id: ${player.id}`
         listPlayers.appendChild(listItem);
       });
       
