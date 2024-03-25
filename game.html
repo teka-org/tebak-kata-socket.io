@@ -111,28 +111,52 @@
       console.log(rand);
       socket.emit('dataPlayers', rand)
 
-  socket.on('game', (q)=>{
-    console.log(q);
+//   socket.on('game', (q)=>{
+//     console.log(q);
 
-    const { question, options } = q;
+//     const { question, options } = q;
 
-    document.getElementById('question').textContent = question 
+//     document.getElementById('question').textContent = question 
 
-    const optionsElement = document.getElementById('options');
-    optionsElement.innerHTML = '';
+//     const optionsElement = document.getElementById('options');
+//     optionsElement.innerHTML = '';
 
-    options.forEach((option, index) => {
-        const optionElement = document.createElement('div');
-        optionElement.textContent = `${index + 1}. ${option}`;
-        optionsElement.appendChild(optionElement);
+//     options.forEach((option, index) => {
+//         const optionElement = document.createElement('a');
+//         optionElement.textContent = `${index + 1}. ${option}`;
+//         optionsElement.appendChild(optionElement);
+//     });
+//   })
+
+socket.on('game', (q) => {
+  console.log(q);
+
+  const { question, options } = q;
+
+  // Set question text
+  document.getElementById('question').textContent = question;
+
+  // Clear previous options
+  const optionsElement = document.getElementById('options');
+  optionsElement.innerHTML = '';
+
+  // Create buttons for each option
+  options.forEach((option, index) => {
+    const optionButton = document.createElement('button');
+    optionButton.textContent = `${index + 1}. ${option}`;
+    optionButton.addEventListener('click', () => {
+      // Handle button click, for example:
+      console.log(`Selected option: ${option}`);
+      socket.emit('answer', option)
     });
-  })
+    optionsElement.appendChild(optionButton);
+  });
+});
 
-  socket.on('socketId', (e)=>{
+socket.on('checkAnswer', (e)=>{
     console.log(e);
+})
 
-    document.getElementById('profile').innerHTML = e
-  })
 
   socket.on('countdownQuestions', (countdown)=>{
     // console.log(countdown);
@@ -145,7 +169,11 @@
   socket.on('checking', (e)=>{
     document.getElementById('totalQuestions').innerHTML = e
   })
-
+    socket.on('noMoreQuestions', (e)=>{
+        if(e){
+            window.location.href = '/'
+    }
+})
 
 
 </script>

@@ -53,18 +53,7 @@ export function handleWaitingRoom(socket: any, io: Server) {
       usersInWaitingRoom.forEach((user) => {
         const socket = io.sockets.sockets.get(user.id);
         if (socket) {
-          // Leave the waiting room
-          // const player = {
-          //   playerId: user.playerId,
-          //   id: user.id,
-          // };
-
           socket.leave(waitingRoom);
-          // Add user to game room
-          // usersInGameRoom.push(player);
-          // updateRoom(io, gameRoom, usersInGameRoom);
-          // // Join the game room
-          // socket.join(gameRoom);
         }
       });
       usersInWaitingRoom = [];
@@ -89,17 +78,6 @@ export function handleWaitingRoom(socket: any, io: Server) {
       stopCountdown();
       console.log("Room", waitingRoom, "terminated.");
     }
-
-    // Handle disconnection for users in the game room
-    // const indexLeftGame = usersInGameRoom.findIndex(
-    //   (user) => user.id === socket.id
-    // );
-
-    // if (indexLeftGame !== -1) {
-    //   console.log(`${indexLeft} left game room`);
-    //   usersInGameRoom.splice(indexLeftGame, 1);
-    //   updateRoom(io, gameRoom, usersInGameRoom);
-    // }
   });
 }
 

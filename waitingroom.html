@@ -94,7 +94,6 @@
         listItem.innerText = `playerId: ${player.playerId}, id: ${player.id}`
         listPlayers.appendChild(listItem);
       });
-      
     })
 
     socket.on('moveTogameRoom', ()=>{
@@ -106,7 +105,7 @@
     socket.on('countdown', (seconds)=>{
       document.getElementById('timer').textContent = seconds
       if(seconds === 0){
-        // window.location.href = '/profile'
+        window.location.href = '/'
       }
     })
 
